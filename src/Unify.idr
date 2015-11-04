@@ -2,6 +2,8 @@ module Unify
 
 import Data.Fin
 
+%default total
+
 -- Term syntax
 
 data Term : (n : Nat) -> Type where
@@ -90,3 +92,35 @@ data AList : (n : Nat) -> (m : Nat) -> Type where
 comp : AList m n -> AList l m -> AList l n
 comp as [] = as
 comp as (Snoc bs t v) = Snoc (comp as bs) t v
+
+
+sub : AList m n -> Fin m -> Term n
+sub [] = Var
+sub (Snoc as t v) = compose (sub as) (forr t v)
+
+
+-- unification
+
+flexFlex : (x : Fin m) -> (y : Fin m) -> Sigma Nat (\n => AList m n)
+flexFlex {m = Z} x y = FinZElim x
+flexFlex {m = (S k)} x y with (thick x y)
+  flexFlex {m = (S k)} x (thin x z) | (Ok z) = MkSigma _ (Snoc [] (Var z) x)
+  flexFlex {m = (S k)} x x          | NotOk  = MkSigma _ [] 
+
+
+flexRigid : Fin m -> Term m -> Maybe (Sigma Nat (\n => AList m n))
+flexRigid {m = Z} v t = FinZElim v
+flexRigid {m = (S k)} v t with (check v t)
+  flexRigid {m = (S k)} v (bind (map (thin v)) c) | (CheckOk c) = Just (MkSigma _ (Snoc [] c v))
+  flexRigid {m = (S k)} v t | (CheckNotOk p)                    = Nothing
+
+
+amgu : Term m -> Term m -> Sigma Nat (\n => AList m n) -> Maybe (Sigma Nat (\n => AList m n))
+amgu Leaf Leaf xs = Just xs
+amgu Leaf (t :@: t') xs = Nothing
+amgu (s :@: s') Leaf xs = Nothing
+amgu (s :@: s') (t :@: t') xs = amgu s t xs >>= amgu s' t'
+amgu (Var x) (Var y) (p ** ps) = Just (flexFlex x y)
+amgu (Var x) t (p ** ps) = flexRigid x t
+amgu s (Var y) (p ** ps) = ?rhs -- flexRigid y s
+amgu s t xs = ?rhs
