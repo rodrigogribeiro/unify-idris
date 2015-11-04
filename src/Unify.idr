@@ -120,7 +120,16 @@ amgu Leaf Leaf xs = Just xs
 amgu Leaf (t :@: t') xs = Nothing
 amgu (s :@: s') Leaf xs = Nothing
 amgu (s :@: s') (t :@: t') xs = amgu s t xs >>= amgu s' t'
-amgu (Var x) (Var y) (p ** ps) = Just (flexFlex x y)
-amgu (Var x) t (p ** ps) = flexRigid x t
-amgu s (Var y) (p ** ps) = ?rhs -- flexRigid y s
-amgu s t xs = ?rhs
+amgu (Var x) (Var y) (n ** ps) = Just (flexFlex x y)
+amgu (Var x) t (m ** []) = flexRigid x t
+amgu s (Var y) (m ** []) = flexRigid y s
+amgu {m = S m'} s t (n ** (Snoc xs x v)) with (amgu (bind (forr x v) s)
+                                                    (bind (forr x v) t)
+                                                    (MkSigma _ xs))
+  amgu {m = S m'} s t (n ** (Snoc xs x v)) | Nothing = Nothing
+  amgu {m = S m'} s t (n ** (Snoc xs x v)) | (Just (MkSigma _ k)) 
+                      = Just (MkSigma _ (Snoc k x v))
+                                 
+
+mgu : Term m -> Term m -> Maybe (Sigma Nat (\n => AList m n))
+mgu s t = amgu s t (MkSigma _ []) 
