@@ -28,10 +28,17 @@ infix 4 .=.
 
 -- unifies is symmetric
 
-UnifiesSym : Unifies s t .=. Unifies t s
-UnifiesSym _ f = (sym , sym)
+unifiesSym : Unifies s t .=. Unifies t s
+unifiesSym _ f = (sym , sym)
 
 -- unifies and application
 
-UnifiesApp : Unifies (s :@: t) (s' :@: t') .=. (Unifies s s' .&. Unifies t t')
-UnifiesApp _ f = ?rhs
+appInv : (s :@: t) = (s' :@: t') -> (s = s' , t = t')
+appInv Refl = (Refl , Refl)
+
+appBack : (s = s' , t = t') -> (s :@: t) = (s' :@: t')
+appBack (Refl , Refl) = Refl
+
+unifiesApp : Unifies (s :@: t) (s' :@: t') .=. (Unifies s s' .&. Unifies t t')
+unifiesApp _ f = (appInv , appBack)
+ 
