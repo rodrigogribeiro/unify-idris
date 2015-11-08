@@ -53,9 +53,43 @@ nothingEquiv pr pr' n f qf with (pr n f)
 
 -- extending properties
 
+infix 4 +=
+
+(+=) : (f : Fin m -> Term n) -> (g : Fin m -> Term n) -> Type
+(+=) {m = m} f g = (x : Fin m) -> f x = g x
+
+bindId : (t : Term m) -> bind Var t = t
+bindId (Var v) = Refl
+bindId Leaf = Refl
+bindId (l :@: r) =  let 
+                     el = bindId l 
+                     er = bindId r
+                   in rewrite el 
+                   in rewrite er 
+                   in Refl
+                   
+bindCompose : (t : Term m) -> bind (compose f g) t = bind f (bind g t)
+bindCompose (Var v) = Refl
+bindCompose Leaf = Refl
+bindCompose (l :@: r) = ?rhs
+
+composeId : (f : Fin m -> Term n) -> compose f Var += f
+composeId f _ = Refl
+
+composeAssoc : (f : Fin m2 -> Term n) -> 
+               (g : Fin m1 -> Term m2) -> 
+               (h : Fin m -> Term m1) -> 
+               compose (compose f g) h += compose f (compose g h)
+composeAssoc f g h x = bindCompose (h x)
+
 Ext : Property m -> (f : Fin m -> Term n) -> Property n
 Ext P f n' g = P _ (compose g f)
 
-
 extVar : (p : Property m) -> p .=. (Ext p Var) 
-extVar p = \n => \f => (?rhs , ?rhs2)
+extVar p s f = ?rhs
+
+nothingExt : Nothing p -> Nothing (Ext p f)
+nothingExt {f = f} np n pr arg = np n (compose pr f) arg
+
+composeExt : Ext (Ext p g) f .=. Ext p (compose f g)
+composeExt n f = (?rhs , ?rhs1) 
