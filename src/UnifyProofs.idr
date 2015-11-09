@@ -61,14 +61,6 @@ infix 4 +=
 (+=) : (f : Fin m -> Term n) -> (g : Fin m -> Term n) -> Type
 (+=) {m = m} f g = (x : Fin m) -> f x = g x
 
--- sobre properties of +=
-
-pointwiseRefl : f += f
-pointwiseRefl x = Refl
-
-pointwiseTrans : f += g -> g += h -> f += h
-pointwiseTrans f g x = trans (f x) (g x) 
-
 bindId : (t : Term m) -> bind Var t = t
 bindId (Var v) = Refl
 bindId Leaf = Refl
@@ -91,8 +83,8 @@ composeAssoc f g h x = bindCompose (h x)
 Ext : Property m -> (f : Fin m -> Term n) -> Property n
 Ext P f n' g = P _ (compose g f)
 
-extVar : (p : Property m) -> p .=. (Ext p Var) 
-extVar p s f = (\ a => ?rhs  , \ a => ?rhs)
+extVar : (x : Fin m) -> (p : Property m) -> p .=. (Ext p Var) 
+extVar x p s f = (\ a => ?rhs  , \ a => ?rhs)
 
 nothingExt : Nothing p -> Nothing (Ext p f)
 nothingExt {f = f} np n pr arg = np n (compose pr f) arg
@@ -109,7 +101,3 @@ infix 4 .<
 
 (.<) : (f : Fin m -> Term n) -> (g : Fin m -> Term n') -> Type
 f .< g = Exists (\ f' => f += compose f' g) 
-
-
-substOrderRefl : (f : Fin n -> Term n) -> f .< f
-substOrderRefl f = ?rhs
