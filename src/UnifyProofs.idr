@@ -53,25 +53,31 @@ nothingEquiv pr pr' n f qf with (pr n f)
 
 -- extending properties
 
+cong2 : (f : a -> b -> c) -> x = y -> u = v -> f x u = f y v
+cong2 _ Refl Refl = Refl
+
 infix 4 +=
 
 (+=) : (f : Fin m -> Term n) -> (g : Fin m -> Term n) -> Type
 (+=) {m = m} f g = (x : Fin m) -> f x = g x
 
+-- sobre properties of +=
+
+pointwiseRefl : f += f
+pointwiseRefl x = Refl
+
+pointwiseTrans : f += g -> g += h -> f += h
+pointwiseTrans f g x = trans (f x) (g x) 
+
 bindId : (t : Term m) -> bind Var t = t
 bindId (Var v) = Refl
 bindId Leaf = Refl
-bindId (l :@: r) =  let 
-                     el = bindId l 
-                     er = bindId r
-                   in rewrite el 
-                   in rewrite er 
-                   in Refl
+bindId (l :@: r) =  cong2 (:@:) (bindId l) (bindId r)
                    
 bindCompose : (t : Term m) -> bind (compose f g) t = bind f (bind g t)
 bindCompose (Var v) = Refl
 bindCompose Leaf = Refl
-bindCompose (l :@: r) = ?rhs
+bindCompose (l :@: r) = cong2 (:@:) (bindCompose l) (bindCompose r)
 
 composeId : (f : Fin m -> Term n) -> compose f Var += f
 composeId f _ = Refl
@@ -86,10 +92,24 @@ Ext : Property m -> (f : Fin m -> Term n) -> Property n
 Ext P f n' g = P _ (compose g f)
 
 extVar : (p : Property m) -> p .=. (Ext p Var) 
-extVar p s f = ?rhs
+extVar p s f = (\ a => ?rhs  , \ a => ?rhs)
 
 nothingExt : Nothing p -> Nothing (Ext p f)
 nothingExt {f = f} np n pr arg = np n (compose pr f) arg
 
 composeExt : Ext (Ext p g) f .=. Ext p (compose f g)
 composeExt n f = (?rhs , ?rhs1) 
+
+unifiesExt : Ext (Unifies s t) (compose f g) .=. Ext (Unifies (bind g s) (bind g t)) f
+unifiesExt = ?rhs
+
+-- optimizing properties
+
+infix 4 .<
+
+(.<) : (f : Fin m -> Term n) -> (g : Fin m -> Term n') -> Type
+f .< g = Exists (\ f' => f += compose f' g) 
+
+
+substOrderRefl : (f : Fin n -> Term n) -> f .< f
+substOrderRefl f = ?rhs
