@@ -84,7 +84,10 @@ composeExt {f = f} {g = g} n h = (replace (coerce (composeAssoc h f g)) ,
                                   replace (sym (coerce (composeAssoc h f g))))
 
 unifiesExt : Ext (Unifies s t) (compose f g) .=. Ext (Unifies (bind g s) (bind g t)) f
-unifiesExt {f = f}{g = g} n h = (replace (coerce (sym (composeAssoc h f g)))?rhs, ?rhs1)
+unifiesExt {f = f}{g = g}{s = s}{t = t} n h = ( trans2 (bindCompose2 s) 
+                                                       (bindCompose2 t) 
+                                              , trans2 (sym (bindCompose2 s))
+                                                       (sym (bindCompose2 t)))
 
 -- optimizing properties
 
@@ -92,3 +95,21 @@ infix 4 .<
 
 (.<) : (f : Fin m -> Term n) -> (g : Fin m -> Term n') -> Type
 f .< g = Exists (\ f' => f += compose f' g) 
+
+subRefl : f .< f
+subRefl {f = f} = Evidence Var (\ v => sym (bindId (f v)))
+
+subTrans : f .< g -> g .< h -> f .< h
+subTrans {h = h}(Evidence x pf) (Evidence x' pf') 
+            = Evidence (compose x x') 
+                       (\ v => trans (pf v)
+                                     (trans (cong (pf' v)) 
+                                            (sym (bindCompose (h v)))))
+                                            
+subId : f .< Var
+subId {f = f} = Evidence f (\ v => Refl)
+
+subCompose : f .< g -> (compose f h) .< (compose g h)                                            
+subCompose {f = f}{g = g}{h = h}(Evidence x pf) 
+           = Evidence x (\ v => ?rhs)
+

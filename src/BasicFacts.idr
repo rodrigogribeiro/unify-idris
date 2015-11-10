@@ -17,3 +17,11 @@ bindCompose : (t : Term m) -> bind (compose f g) t = bind f (bind g t)
 bindCompose (Var v) = Refl
 bindCompose Leaf = Refl
 bindCompose (l :@: r) = cong2 (:@:) (bindCompose l) (bindCompose r)
+
+bindCompose2 : (t : Term m) -> bind (compose h (compose f g)) t = bind (compose h f) (bind g t)
+bindCompose2 {g = g} (Var v) = sym (bindCompose (g v))
+bindCompose2 Leaf = Refl
+bindCompose2 (l :@: r) = cong2 (:@:) (bindCompose2 l) (bindCompose2 r)
+
+trans2 : a = a'-> b = b' -> a = b -> a' = b'
+trans2 Refl Refl Refl = Refl
