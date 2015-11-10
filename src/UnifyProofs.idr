@@ -2,6 +2,7 @@ module UnifyProofs
 
 import Data.Fin
 import Unify
+import BasicFacts
 
 %default total
 
@@ -53,23 +54,12 @@ nothingEquiv pr pr' n f qf with (pr n f)
 
 -- extending properties
 
-cong2 : (f : a -> b -> c) -> x = y -> u = v -> f x u = f y v
-cong2 _ Refl Refl = Refl
-
 infix 4 +=
 
 (+=) : (f : Fin m -> Term n) -> (g : Fin m -> Term n) -> Type
 (+=) {m = m} f g = (x : Fin m) -> f x = g x
 
-bindId : (t : Term m) -> bind Var t = t
-bindId (Var v) = Refl
-bindId Leaf = Refl
-bindId (l :@: r) =  cong2 (:@:) (bindId l) (bindId r)
-                   
-bindCompose : (t : Term m) -> bind (compose f g) t = bind f (bind g t)
-bindCompose (Var v) = Refl
-bindCompose Leaf = Refl
-bindCompose (l :@: r) = cong2 (:@:) (bindCompose l) (bindCompose r)
+postulate coerce : f += g -> f = g  -- cheating...
 
 composeId : (f : Fin m -> Term n) -> compose f Var += f
 composeId f _ = Refl
@@ -84,7 +74,7 @@ Ext : Property m -> (f : Fin m -> Term n) -> Property n
 Ext P f n' g = P _ (compose g f)
 
 extVar : (x : Fin m) -> (p : Property m) -> p .=. (Ext p Var) 
-extVar x p s f = (\ a => ?rhs  , \ a => ?rhs)
+extVar x p s f = (replace (sym (coerce (composeId f))) , replace (coerce (composeId f)) )
 
 nothingExt : Nothing p -> Nothing (Ext p f)
 nothingExt {f = f} np n pr arg = np n (compose pr f) arg
