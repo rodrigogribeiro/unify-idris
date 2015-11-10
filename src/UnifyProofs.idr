@@ -80,10 +80,11 @@ nothingExt : Nothing p -> Nothing (Ext p f)
 nothingExt {f = f} np n pr arg = np n (compose pr f) arg
 
 composeExt : Ext (Ext p g) f .=. Ext p (compose f g)
-composeExt n f = (?rhs , ?rhs1) 
+composeExt {f = f} {g = g} n h = (replace (coerce (composeAssoc h f g)) , 
+                                  replace (sym (coerce (composeAssoc h f g))))
 
 unifiesExt : Ext (Unifies s t) (compose f g) .=. Ext (Unifies (bind g s) (bind g t)) f
-unifiesExt = ?rhs
+unifiesExt {f = f}{g = g} n h = (replace (coerce (sym (composeAssoc h f g)))?rhs, ?rhs1)
 
 -- optimizing properties
 
