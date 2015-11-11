@@ -127,7 +127,42 @@ Max {m = m} p = \n => \f => (p n f , (k : Nat) -> (f' : Fin m -> Term k) -> p k 
 
 maxEquiv : p .=. q -> Max p .=. Max q 
 maxEquiv pr n f = ( \ a => ( fst (pr n f) (fst a) 
-                           , \ n1 => \ g => \pr1 => (snd a) n1 g (snd (pr n1 g) pr1))
+                           , \ n1 => \ g => \pr1 => ?rhs)
                   , \ a' => (snd (pr n f) (fst a') 
-                            , \ n2 => \ g' => \ pr2 => (snd a') n2 g' (fst (pr n2 g') pr2)))
+                            , \ n2 => \ g' => \ pr2 => ?rhs))
+
+-- I believe that the code below is a correct implementation of maxEquiv but Idris 
+-- give me the following weird error message
+
+-- `-- UnifyProofs.idr line 130 col 60:
+--   When checking right hand side of maxEquiv with expected type
+--           (Max p n f -> Max q n f, Max q n f -> Max p n f)
+
+--   When checking argument b to constructor Builtins.MkPair:
+--           No such variable k
+   
+-- maxEquiv : p .=. q -> Max p .=. Max q 
+-- maxEquiv pr n f = ( \ a => ( fst (pr n f) (fst a) 
+--                            , \ n1 => \ g => \pr1 => (snd a) n1 g (snd (pr n1 g) pr1))
+--                  , \ a' => (snd (pr n f) (fst a') 
+--                            , \ n2 => \ g' => \ pr2 => (snd a') n2 g' (fst (pr n2 g') pr2)))
+
  
+-- downward closedness
+
+DClosed : (p : Property m) -> Type
+DClosed {m = m} p = (n : Nat) -> (n' : Nat) -> (f : Fin m -> Term n) -> 
+                                               (g : Fin m -> Term n') -> 
+                                               f .< g -> p n' g -> p n f
+                                               
+dClosedUnifies : (s : Term m) -> (t : Term m) -> DClosed (Unifies s t)
+dClosedUnifies s t n n' f g (Evidence f' pr) eq 
+               = trans (subExtVar {g = compose f' g} s pr) 
+                       (trans (bindCompose {f = f'} {g = g} s) 
+                              (trans (cong {f = bind f'} eq) 
+                                     (trans (sym (bindCompose {f = f'}{g = g} t)) 
+                                            (sym (subExtVar {g = compose f' g} t pr)))))
+ 
+ 
+-- optmistic lemma
+
