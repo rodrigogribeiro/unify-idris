@@ -120,3 +120,10 @@ subCompose {f = f}{g = g}{h = h}(Evidence x pf)
                                           (sym (subExtVar (h v) pf))))
 
  
+-- maximal properties
+
+Max : (p : Property m) -> Property m
+Max {m = m} p = \n => \f => (p n f , {n' : Nat} -> (f' : Fin m -> Term n') -> p n' f' -> f' .< f)
+
+maxEquiv : p .=. q -> Max p .=. Max q
+maxEquiv pr n f = (\ a => ?rhs , \ a' => ?rhs1)
