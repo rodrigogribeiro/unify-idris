@@ -115,6 +115,8 @@ subExtVar Leaf pr = Refl
 subExtVar (l :@: r) pr = cong2 (:@:) (subExtVar l pr) (subExtVar r pr)
 
 subCompose : f .< g -> (compose f h) .< (compose g h)                                            
-subCompose {f = f}{g = g}{h = h}(Evidence x pf) 
-           = ?Rhs
+subCompose {f = f}{g = g}{h = h}(Evidence x pf)  
+           = Evidence x (\v => sym (trans (sym (bindCompose {f = x}{g = g}(h v))) 
+                                          (sym (subExtVar (h v) pf))))
 
+ 

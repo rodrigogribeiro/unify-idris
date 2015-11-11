@@ -22,7 +22,7 @@ bind f Leaf = Leaf
 bind f (l :@: r) = (bind f l) :@: (bind f r)
 
 compose : (Fin m -> Term n) -> (Fin l -> Term m) -> Fin l -> Term n
-compose f g = bind f . g
+compose f g v = bind f (g v)
 
 -- thin
 
