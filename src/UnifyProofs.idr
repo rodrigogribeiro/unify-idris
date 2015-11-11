@@ -109,7 +109,12 @@ subTrans {h = h}(Evidence x pf) (Evidence x' pf')
 subId : f .< Var
 subId {f = f} = Evidence f (\ v => Refl)
 
+subExtVar : (t : Term n) -> f += g -> bind f t = bind g t
+subExtVar (Var v) pr = pr v
+subExtVar Leaf pr = Refl
+subExtVar (l :@: r) pr = cong2 (:@:) (subExtVar l pr) (subExtVar r pr)
+
 subCompose : f .< g -> (compose f h) .< (compose g h)                                            
 subCompose {f = f}{g = g}{h = h}(Evidence x pf) 
-           = Evidence x (\ v => ?rhs)
+           = ?Rhs
 
