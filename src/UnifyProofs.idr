@@ -125,29 +125,15 @@ subCompose {f = f}{g = g}{h = h}(Evidence x pf)
 Max : (p : Property m) -> Property m
 Max {m = m} p = \n => \f => (p n f , (k : Nat) -> (f' : Fin m -> Term k) -> p k f' -> f' .< f)
 
-maxEquiv : p .=. q -> Max p .=. Max q 
+applySnd : Max {m = m} p n f -> (k : Nat) -> (f' : Fin m -> Term k) -> p k f' -> f' .< f
+applySnd = snd
+
+maxEquiv git : p .=. q -> Max p .=. Max q 
 maxEquiv pr n f = ( \ a => ( fst (pr n f) (fst a) 
-                           , \ n1 => \ g => \pr1 => ?rhs)
-                  , \ a' => (snd (pr n f) (fst a') 
-                            , \ n2 => \ g' => \ pr2 => ?rhs))
+                           , \ n1 => \ g => \pr1 => (applySnd a) n1 g (snd (pr n1 g) pr1))
+                  , \ a' => (snd (pr n f) (fst a
+                            , \ n2 => \ g' => \ pr2 => (applySnd a') n2 g' (fst (pr n2 g') pr2)))
 
--- I believe that the code below is a correct implementation of maxEquiv but Idris 
--- give me the following weird error message
-
--- `-- UnifyProofs.idr line 130 col 60:
---   When checking right hand side of maxEquiv with expected type
---           (Max p n f -> Max q n f, Max q n f -> Max p n f)
-
---   When checking argument b to constructor Builtins.MkPair:
---           No such variable k
-   
--- maxEquiv : p .=. q -> Max p .=. Max q 
--- maxEquiv pr n f = ( \ a => ( fst (pr n f) (fst a) 
---                            , \ n1 => \ g => \pr1 => (snd a) n1 g (snd (pr n1 g) pr1))
---                  , \ a' => (snd (pr n f) (fst a') 
---                            , \ n2 => \ g' => \ pr2 => (snd a') n2 g' (fst (pr n2 g') pr2)))
-
- 
 -- downward closedness
 
 DClosed : (p : Property m) -> Type
