@@ -128,10 +128,10 @@ Max {m = m} p = \n => \f => (p n f , (k : Nat) -> (f' : Fin m -> Term k) -> p k 
 applySnd : Max {m = m} p n f -> (k : Nat) -> (f' : Fin m -> Term k) -> p k f' -> f' .< f
 applySnd = snd
 
-maxEquiv git : p .=. q -> Max p .=. Max q 
+maxEquiv : p .=. q -> Max p .=. Max q 
 maxEquiv pr n f = ( \ a => ( fst (pr n f) (fst a) 
                            , \ n1 => \ g => \pr1 => (applySnd a) n1 g (snd (pr n1 g) pr1))
-                  , \ a' => (snd (pr n f) (fst a
+                  , \ a' => (snd (pr n f) (fst a')
                             , \ n2 => \ g' => \ pr2 => (applySnd a') n2 g' (fst (pr n2 g') pr2)))
 
 -- downward closedness
@@ -152,3 +152,5 @@ dClosedUnifies s t n n' f g (Evidence f' pr) eq
  
 -- optmistic lemma
 
+optmisticLemma : DClosed p -> Max (Ext a p)
+optmisticLemma = ?rhs                                                       
