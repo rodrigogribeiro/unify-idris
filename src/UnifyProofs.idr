@@ -152,5 +152,13 @@ dClosedUnifies s t n n' f g (Evidence f' pr) eq
  
 -- optmistic lemma
 
-optmisticLemma : DClosed p -> Max (Ext a p)
-optmisticLemma = ?rhs                                                       
+optmisticLemma : DClosed p -> Max (Ext p a) n f -> Max (Ext q (compose f a)) n g -> 
+                                                   Max (Ext (p .&. q) (compose g f)) n h
+optmisticLemma d m k = ( ?rhs
+                       , ?rhs1)
+
+
+-- failure propagation lemma
+
+failurePropagation1 : Nothing (Ext p f) -> Nothing (Ext (p .&. q) f)
+failurePropagation1 nf n g contra = nf _ g (fst contra)
