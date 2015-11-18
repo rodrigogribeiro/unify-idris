@@ -149,16 +149,27 @@ dClosedUnifies s t n n' f g (Evidence f' pr) eq
                                      (trans (sym (bindCompose {f = f'}{g = g} t)) 
                                             (sym (subExtVar {g = compose f' g} t pr)))))
  
- 
+  
 -- optmistic lemma
 
-optmisticLemma : DClosed p -> Max (Ext p a) n f -> Max (Ext q (compose f a)) n g -> 
-                                                   Max (Ext (p .&. q) (compose g f)) n h
-optmisticLemma d m k = ( ?rhs
-                       , ?rhs1)
+optmisticLemma : DClosed p -> Max {m = m} (Ext p a) n f -> 
+                              Max (Ext q (compose f a)) n g -> 
+                              Max (Ext (p .&. q) (compose f a)) n g
+optmisticLemma {n = n}{f = f}{g = g}{a = a} dClo (pPa, pMax) (Qqpa, qMax) 
+                    = (( dClo _ _ (compose g (compose f a)) 
+                                   (compose f a) 
+                                   (Evidence g (\ x => Refl))
+                                   pPa
+                       , Qqpa)
+                      , \ n' => \ f' => \ pr' => qMax _ f' (snd pr')) 
 
 
 -- failure propagation lemma
 
 failurePropagation1 : Nothing (Ext p f) -> Nothing (Ext (p .&. q) f)
 failurePropagation1 nf n g contra = nf _ g (fst contra)
+
+failurePropagation2 : Max {m = m} (Ext p a) n f     -> 
+                      Nothing (Ext q (compose f a)) -> 
+                      Nothing (Ext (p .&. q) a)
+failurePropagation2 mf ng _ h (pa, qa) = ?rhs                     
