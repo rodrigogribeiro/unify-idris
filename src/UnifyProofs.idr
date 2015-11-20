@@ -172,4 +172,5 @@ failurePropagation1 nf n g contra = nf _ g (fst contra)
 failurePropagation2 : Max {m = m} (Ext p a) n f     -> 
                       Nothing (Ext q (compose f a)) -> 
                       Nothing (Ext (p .&. q) a)
-failurePropagation2 mf ng _ h (pa, qa) = ?rhs                     
+failurePropagation2 (pf, ff) ng _ h (pa, qa) with (ff _ _ pf)
+  failurePropagation2 (pf, ff) ng _ h (pa, qa) | (Evidence x y) = ?rhs
