@@ -169,8 +169,11 @@ optmisticLemma {n = n}{f = f}{g = g}{a = a} dClo (pPa, pMax) (Qqpa, qMax)
 failurePropagation1 : Nothing (Ext p f) -> Nothing (Ext (p .&. q) f)
 failurePropagation1 nf n g contra = nf _ g (fst contra)
 
-failurePropagation2 : Max {m = m} (Ext p a) n f     -> 
+failurePropagation2 : Max {m = m}(Ext p a) n f     -> 
                       Nothing (Ext q (compose f a)) -> 
                       Nothing (Ext (p .&. q) a)
-failurePropagation2 (pf, ff) ng _ h (pa, qa) with (ff _ _ pf)
-  failurePropagation2 (pf, ff) ng _ h (pa, qa) | (Evidence x y) = ?rhs
+failurePropagation2 {m = m}{n = n}{f = f} (pf, ff) nQfa _ h (pa , qa) with (ff _ h pa)
+  failurePropagation2 {m = m}{n = n}{f = f} (pf, ff) nQfa _ h (pa , qa) | (Evidence x y) 
+                      = nQfa _ x ?rhs
+
+
