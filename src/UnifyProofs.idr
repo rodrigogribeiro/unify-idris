@@ -172,8 +172,11 @@ failurePropagation1 nf n g contra = nf _ g (fst contra)
 failurePropagation2 : Max {m = m}(Ext p a) n f     -> 
                       Nothing (Ext q (compose f a)) -> 
                       Nothing (Ext (p .&. q) a)
-failurePropagation2 {m = m}{n = n}{f = f} (pf, ff) nQfa _ h (pa , qa) with (ff _ h pa)
-  failurePropagation2 {m = m}{n = n}{f = f} (pf, ff) nQfa _ h (pa , qa) | (Evidence x y) 
-                      = nQfa _ x ?rhs
-
-
+failurePropagation2 {m = m}{a = a}{n = n}{f = f} (pf, ff) nQfa s h (pa , qa) with (ff _ h pa)
+  failurePropagation2 {m = m}{a = a}{n = n}{f = f} (pf, ff) nQfa s h (pa , qa) | fle 
+    with (subCompose {h = a} fle)
+    failurePropagation2 {m = m}{a = a}{n = n}{f = f} (pf, ff) nQfa s h (pa , qa) 
+      | fle | (Evidence x z) = nQfa _ x (replace {P = q s} 
+                                                 (coerce {f = compose h a}
+                                                         {g = compose x (compose f a)} z) 
+                                                  qa)    
