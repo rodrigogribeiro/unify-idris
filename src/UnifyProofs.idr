@@ -180,3 +180,12 @@ failurePropagation2 {m = m}{a = a}{n = n}{f = f} (pf, ff) nQfa s h (pa , qa) wit
                                                  (coerce {f = compose h a}
                                                          {g = compose x (compose f a)} z) 
                                                   qa)    
+
+-- Simple unification problems
+
+trivialProblem : Max (Ext (Unifies t t) f) n Var
+trivialProblem = ( Refl , \ n => \ f' => \ pr => Evidence f' (\ _ => Refl) )
+
+
+varElimLemma : Max (Unifies (Var x) (bind (map (thin x)) t')) n (forr t' x)
+varElimLemma = ?rhs
