@@ -186,6 +186,9 @@ failurePropagation2 {m = m}{a = a}{n = n}{f = f} (pf, ff) nQfa s h (pa , qa) wit
 trivialProblem : Max (Ext (Unifies t t) f) n Var
 trivialProblem = ( Refl , \ n => \ f' => \ pr => Evidence f' (\ _ => Refl) )
 
+forrThick : forr t' x x = t'
+forrThick {t' = t}{x = x} with (thick x x)
+  forrThick {t' = t}{x = x} | NotOk = Refl
 
 varElimLemma : Max (Unifies (Var x) (bind (map (thin x)) t')) n (forr t' x)
-varElimLemma = ?rhs
+varElimLemma {x = x}{t' = t'} = rewrite forrThick {t' = t'}{x = x} in ?rhs
